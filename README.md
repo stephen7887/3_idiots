@@ -21,7 +21,8 @@
     - 아래 이미지는 모델의 종류별 대략적인 성능을 시각화
         - 모델 구분 : Camera-only, LiDAR-only, Multi-modal (Camera + LiDAR)
         
-        ![Uploading image.png…]()
+        <img width="2400" height="1600" alt="image" src="https://github.com/user-attachments/assets/9686fe1f-f413-4c1b-86a2-dbfbc4d8b100" />
+
 
         
     - LiDAR 정보가 주어지지 않더라도 LiDAR 정보를 이용하는 것과 비슷한 수준의 성능을 이끌어내는 것이 최종적인 목표
@@ -60,7 +61,9 @@
         - e.g. ***MVX-Net***, ImVoteNet 등
     - 모델 구조 시각화
         
-        ![image.png](image%201.png)
+        <img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/9ad3b7e0-a777-4483-a8b9-6730d4e88ee1" />
+
+
         
 
 - 특이사항
@@ -93,19 +96,13 @@
 | ***Our Project*** | GLPN + MVXNET | 약 34M  |
 - camera based 모델에 비해 파라미터 수 차이가 그렇게 크지 않지만 성능은 실제 라이다 모델과 비슷한 성능을 보임
 
-                           **Pseudo LiDAR                                                                    Real LiDAR**
-
-![pseudo_lidar_bev.png](pseudo_lidar_bev.png)
-
-![real_lidar_bev.png](real_lidar_bev.png)
-
 ### Pseudo LiDAR
 
-![pseudo_lidar_overlay.png](pseudo_lidar_overlay.png)
+<img width="800" height="800" alt="image" src="https://github.com/user-attachments/assets/e5437049-1914-4e0e-8fe0-8ae978a5f61e" />
 
 ## Real LiDAR
 
-![image.png](image%202.png)
+<img width="800" height="800" alt="image" src="https://github.com/user-attachments/assets/36ba6135-42ad-42ac-b708-d9af6086c7e0" />
 
 ### 최종 3D Object Detection 결과
 
