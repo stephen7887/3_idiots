@@ -21,7 +21,8 @@
     - 아래 이미지는 모델의 종류별 대략적인 성능을 시각화
         - 모델 구분 : Camera-only, LiDAR-only, Multi-modal (Camera + LiDAR)
         
-        ![image.png](image.png)
+        ![Uploading image.png…]()
+
         
     - LiDAR 정보가 주어지지 않더라도 LiDAR 정보를 이용하는 것과 비슷한 수준의 성능을 이끌어내는 것이 최종적인 목표
 
