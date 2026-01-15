@@ -70,11 +70,15 @@
     - 데이터 전처리
         - Depth Estimation Model이 예측한 Pseudo-LiDAR의 경우 실제 LiDAR에 비해 1/8 스케일
             
-            ⇒ 원래의 예측값에 SCALE_FACTOR = 8을 곱
+            ⇒ 원래의 예측값에 SCALE_FACTOR = 8을 곱하여 사용
             
         - Pseudo-LiDAR의 경우 실제 LiDAR에 비해 points가 너무 빽빽하게 분포
             
-            ⇒ 원래의 예측에서 10% 수준으로 다운샘플링 수행
+            ⇒ 원래의 예측에서 10% 수준으로 다운샘플링을 적용하여 사용
+            
+        - 실제 LiDAR에는 intensity 정보가 존재하지만, Pseudo-LiDAR의 경우 Depth Estimation Model이 intensity값을 예측하지 못함
+            
+            ⇒ 임의의 값(0.5)으로 전부 채운 뒤 사용
             
     - 3D Object Detection 관련 오픈소스 라이브러리인 MM Detection 3D 이용
         - 발생한 문제 : 코랩 환경과 라이브러리의 의존성 문제
@@ -82,6 +86,19 @@
     - Teacher Model과  Student Model은 동일한 모델을 사용
         - 예상 문제 : 두 모델이 동일한 가중치로 초기화되기 때문에 Feature Space가 동일해지도록 학습이 될 가능성 존재
         - 해결 방안 : Teacher Model의 Feature Space와 Student Model의 Feature Space를 직접 비교하지 않고, Student Model의 Feature Space를 1D Conv 레이어를 통과시켜 Teacher Model의 Feature Space로 projection되도록 한 뒤 비교
+    - 학습 과정에서 Detection Loss가 발생하지 않는 문제 (detection_loss = 0.0)
+        - Pseudo-LiDAR는 생성되었지만, 그에 대응하는 annotation 파일이 존재하지 않아 학습 과정에서 모델이 인식하지 못하는 문제 발생
+        - 해결 방안 : Pseudo-LiDAR용 annotation 파일을 생성 후 학습 진행
+    - Loss 관련
+        - Teacher Model 및 Student 모델은 사전학습된 가중치로 초기화됨
+            
+            → 이미 object detection 능력은 준수하다고 판단하여 Knowledge Distillation 관련 Loss의 가중치를 크게 설정
+            
+            - **Loss Weights: Det=1.0, Feat=2.0, Logit=1.0**
+        - 발생한 문제 : 이렇게 학습을 진행하니 Detection 자체를 제대로 수행하지 못함
+        - 해결 방안 : 20에포크까지 파인튜닝을 진행한 상태에서 이번에는 KD loss의 가중치를 줄이고 Detection Loss의 가중치를 크게 늘린 뒤 추가로 파인튜닝 진행
+            - **Loss Weights: Det=3.0, Feat=1.5, Logit=1.5**
+        - 결과 : Detection 성능이 높아짐 (이전에는 탐지하지 못했던 object를 탐지하기 시작)
 
 ## 3. 프로젝트 결과
 
@@ -98,33 +115,46 @@
 
 ### Pseudo LiDAR
 
-<img width="800" height="800" alt="image" src="https://github.com/user-attachments/assets/e5437049-1914-4e0e-8fe0-8ae978a5f61e" />
+<img width="1242" height="375" alt="image" src="https://github.com/user-attachments/assets/e5ea81fa-5f3b-4880-9acd-9152de359c46" />
+
 
 ## Real LiDAR
 
-<img width="800" height="800" alt="image" src="https://github.com/user-attachments/assets/36ba6135-42ad-42ac-b708-d9af6086c7e0" />
+<img width="1200" height="300" alt="image" src="https://github.com/user-attachments/assets/dd4a19ef-a019-4b7f-975c-175cc995af00" />
+
 
 ### 최종 3D Object Detection 결과
 
-![image.png](image%203.png)
+<img width="1242" height="375" alt="image" src="https://github.com/user-attachments/assets/adae70c7-e2bd-4b3f-b0ec-9a45eecfed19" />
+
 
 ## Kitti 데이터셋 이외의 이미지로 성능 평가
 
 - nano banana를 이용해 이미지 생성
 
-![image.png](image%204.png)
+<img width="1200" height="300" alt="image" src="https://github.com/user-attachments/assets/8b56c12b-d60e-4e7a-89ff-57da458e15db" />
+
 
 ### 기존 모델과 프로젝트 최종 모델의 3D Object Detection 비교
 
-![image.png](ec9cdb16-936a-4773-be3a-a72b25a477dc.png)
+<img width="1252" height="437" alt="image" src="https://github.com/user-attachments/assets/e23fda03-4d15-40b1-be7a-8c5de2045c8d" />
+
 
 ### 이외의 동영상을 이용한 실시간 탐지
 
 ## 4.  마무리 : 개선 및 확장 방안
 
+- 각 모델을 스크래치부터 직접 학습
+    - 이번 프로젝트에서는 짧은 기간으로 인해 각 모델을 직접 학습시킬 시간이 부족해 사전학습된 가중치를 가져와서 사용
 - 다른 종류의 모델을 적용
     - Depth Estimation Model 및 Multi-modal Model의 종류를 다르게 해보기
-    - 시간 부족으
-- 
+    - 특히 이번 프로젝트의 경우 Pseudo-LiDAR의 퀄리티가 전체 모델의 Bottleneck으로 작동
+        
+        → Pseudo-LiDAR를 예측하는 모델의 종류를 달리해가며 성능을 측정해볼 시간이 부족했음
+        
 
 ## 5. 배운 점
+
+- KD는 단순히 정답 따라하기가 아니라 표현을 안정화하는 도구이다.
+- 평가(Evaluation)와 시각화(Inference)는 학습만큼 중요하다.
+- 단일 이미지 추론에서 Calibration이 왜 필요한지 이해했다.
