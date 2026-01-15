@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Experiments / outputs
+work_dirs/
+outputs/
+*.log
+
+# Data (KITTI etc.)
+data/
+*.bin
+*.pkl
+*.npy
+
+# Checkpoints
+*.pth
+*.pt
+
+# OS
+.DS_Store
